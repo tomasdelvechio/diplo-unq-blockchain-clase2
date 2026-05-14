@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {Test, console} from "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {SimpleStorage} from "../src/SimpleStorage.sol";
 
 /// @title SimpleStorageTest
@@ -56,6 +56,13 @@ contract SimpleStorageTest is Test {
         assertEq(simpleStorage.favoriteNumber(), 11);
     }
 
+    /// @notice decrement() should subtract 1 from the number
+    function test_Decrement() public {
+        simpleStorage.store(10);
+        simpleStorage.decrement();
+        assertEq(simpleStorage.favoriteNumber(), 9);
+    }
+
     // ==========================================================================
     // EVENT TESTS
     // ==========================================================================
@@ -77,6 +84,18 @@ contract SimpleStorageTest is Test {
 
         vm.expectEmit(true, true, true, true);
         emit SimpleStorage.NumberUpdated(5, 6, address(this));
+
+        simpleStorage.increment();
+    }
+
+    /// @notice decrement() should emit NumberUpdated
+    function test_DecrementEmitsEvent() public {
+        simpleStorage.store(5);
+
+        vm.expectEmit(true, true, true, true);
+        emit SimpleStorage.NumberUpdated(5, 4, address(this));
+
+        simpleStorage.decrement();
 
         simpleStorage.increment();
     }
@@ -126,5 +145,15 @@ contract SimpleStorageTest is Test {
         simpleStorage.store(_initial);
         simpleStorage.increment();
         assertEq(simpleStorage.favoriteNumber(), _initial + 1);
+    }
+
+    /// @notice decrement() should not underflow
+    function testFuzz_DecrementNoUnderflow(uint256 _initial) public {
+        // Only test values that won't underflow
+        vm.assume(_initial > 0);
+
+        simpleStorage.store(_initial);
+        simpleStorage.decrement();
+        assertEq(simpleStorage.favoriteNumber(), _initial - 1);
     }
 }

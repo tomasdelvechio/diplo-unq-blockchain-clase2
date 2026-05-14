@@ -47,4 +47,11 @@ contract SimpleStorage {
         favoriteNumber += 1;
         emit NumberUpdated(oldNumber, favoriteNumber, msg.sender);
     }
+
+    /// @notice Decrements the stored number by 1
+    function decrement() public {
+        uint256 oldNumber = favoriteNumber;
+        favoriteNumber -= 1;
+        emit NumberUpdated(oldNumber, favoriteNumber, msg.sender);
+    }
 }
